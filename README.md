@@ -39,3 +39,4 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 
 - [Shadcn](https://ui.shadcn.com/): _Build your component library_. Beautifully designed components that you can copy and paste into your apps. Accessible. Customizable. Open Source.
 - [Cleck](https://cleck.com/): _Authentication for the modern web_. Cleck is a modern authentication platform that allows you to add authentication to your app in minutes.
+- [HyperColor](https://hypercolor.dev/): _Color palette generator_. Generate beautiful color palettes from any image.
