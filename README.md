@@ -57,3 +57,8 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 - [x] Accept multiple files
 - [x] Accept multiple file types (images, docs)
 - [x] Redesign Logic so it is displayed after filling initial medicaid quiz.
+
+### AWS
+
+- [x] Setup the right permissions for everyone in the team to log
+- [x] Block public access to S3 bucket.

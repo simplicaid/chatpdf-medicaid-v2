@@ -8,7 +8,7 @@ import { useDropzone } from "react-dropzone";
 //import axios from "axios";
 //import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
-//import { uploadToS3 } from "@/lib/s3";
+import { uploadToS3 } from "@/lib/s3";
 
 // https://github.com/aws/aws-sdk-js-v3/issues/4126
 
@@ -18,8 +18,19 @@ const FileUpload = () => {
   const { getRootProps, getInputProps } = useDropzone({
     accept: { "application/pdf": [".pdf"] }, // accept images and other files
     maxFiles: 5,
-    onDrop: (acceptedFiles) => {
+    onDrop: async (acceptedFiles) => {
       console.log(acceptedFiles);
+      const file = acceptedFiles[0];
+      if (file.size > 10 * 1024 * 1024) {
+        alert("Please upload a smaller file (this one is over 10MB)");
+        return;
+      }
+      try {
+        const data = await uploadToS3(file);
+        console.log(data);
+      } catch (error) {
+        console.log(error);
+      }
     },
   });
   return (
