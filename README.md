@@ -40,3 +40,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 - [Shadcn](https://ui.shadcn.com/): _Build your component library_. Beautifully designed components that you can copy and paste into your apps. Accessible. Customizable. Open Source.
 - [Cleck](https://cleck.com/): _Authentication for the modern web_. Cleck is a modern authentication platform that allows you to add authentication to your app in minutes.
 - [HyperColor](https://hypercolor.dev/): _Color palette generator_. Generate beautiful color palettes from any image.
+- [lucide-react](https://lucide.dev/): _Simple icons for your project_. Lucide is a free, open-source icon set made for projects that need an icon system.
+- [Neon](https://neon.tech): _The fastest way to build serverless apps_. Neon is a framework for building serverless PostGress with TypeScript.
+- [Drizzle](https://orm.drizzle.team/) _The ORM for Supabase_. TypeScript ORM that lets us skip SQL and work directly with the Supabase API + has typing support.

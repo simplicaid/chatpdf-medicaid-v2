@@ -19,7 +19,8 @@ export default async function Home() {
             {isAuth && <Button>Go to Chats</Button>}
           </div>
           <p className="max-w-x1 mt-1 text-lg text-black-600">
-            Complete the Medicaid procress in minutes instead of hours, with a verification system to ensure you are not making any mistakes.
+            Complete the Medicaid procress in minutes instead of hours, with a<br/>
+            verification system to ensure you are not making any mistakes.
           </p>
           <div className="w-full mt-4">
             {isAuth ? (
