@@ -62,3 +62,10 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 
 - [x] Setup the right permissions for everyone in the team to log
 - [x] Block public access to S3 bucket.
+
+### Vercel
+
+- [x] Setup Vercel env variables
+- [x] Setup Vercel secrets
+- [x] Deploy on Vercel
+- [x] Setup Vercel CI/CD
