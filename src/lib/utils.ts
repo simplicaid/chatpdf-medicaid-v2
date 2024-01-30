@@ -1,7 +1,13 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-// conditional function to use tailwind styling much more easier.
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+export function convertToAscii(inputString: string) {
+  // remove non ascii characters
+  let asciiString = inputString.replace(/[^\x00-\x7F]+/g, "");
+  asciiString = asciiString.replace(/[\s\W]+/g, "_");
+  return asciiString;
 }
