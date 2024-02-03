@@ -23,6 +23,7 @@ export async function downloadFromS3(file_key: string): Promise<string> {
         // https://github.com/aws/aws-sdk-js-v3/issues/843
         //open the writable stream and write the file
         const file = fs.createWriteStream(file_name);
+        console.log("")
         file.on("open", function (fd) {
           // @ts-ignore
           obj.Body?.pipe(file).on("finish", () => {
