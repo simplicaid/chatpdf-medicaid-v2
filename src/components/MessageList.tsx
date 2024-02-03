@@ -18,25 +18,44 @@ const MessageList = ({ messages, isLoading }: Props) => {
   }
   if (!messages) return <></>;
   return (
-    <div className="flex flex-col gap-2 px-4">
+    <div className="flex flex-col gap-2.5 px-4">
       {messages.map((message) => {
+        const isUser = message.role === "user";
         return (
           <div
             key={message.id}
-            className={cn("flex", {
-              "justify-end pl-10": message.role === "user",
-              "justify-start pr-10": message.role === "assistant",
+            className={cn({
+              "flex justify-end items-start gap-2.5": isUser,
+              "flex justify-start items-start gap-2.5": !isUser,
             })}
           >
+            {/* Message bubble */}
             <div
               className={cn(
-                "rounded-lg px-3 text-sm py-1 shadow-md ring-1 ring-gray-900/10",
+                "flex flex-col max-w-[280px] leading-1.5 border-gray-200 shadow-md",
                 {
-                  "bg-blue-600 text-white": message.role === "user",
+                  "bg-blue-600 text-white rounded-xl p-2.5": isUser,
+                  "bg-gray-100 text-gray-900 rounded-xl p-3.5": !isUser, 
                 }
               )}
             >
-              <p>{message.content}</p>
+              {/* Sender label */}
+              <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                <span className={cn("text-sm font-semibold", {
+                  "text-white": isUser,
+                  "text-gray-900 dark:text-white": !isUser,
+                })}>
+                  {isUser ? "" : "Simplicaid:"}
+                </span>
+              </div>
+              {/* Message content */}
+              {/* <p className="text-sm font-normal py-2.5">{message.content}</p> */}
+              <p className={cn("text-sm font-normal", {
+                "text-center": isUser, // Align right for user messages
+                "text-left py-2.5": !isUser, // Align left for assistant messages
+              })}>
+                {message.content}
+              </p>
             </div>
           </div>
         );
