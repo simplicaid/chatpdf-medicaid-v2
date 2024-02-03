@@ -14,7 +14,7 @@ type Props = { chatId: number };
 
 const ChatComponent = ({ chatId }: Props) => {
   // TODO: for testing, set questionnaire state to true; later set to false
-  const [isQuestionnaireCompleted, setIsQuestionnaireCompleted] = React.useState(true);
+  const [isQuestionnaireCompleted, setIsQuestionnaireCompleted] = React.useState(false);
   const [question, setQuestion] = React.useState(0);
   const [verify, setVerify] =  React.useState(false);
 

@@ -1,5 +1,5 @@
 import { Configuration, OpenAIApi } from "openai-edge";
-import { Message } from "ai";
+import { Message, OpenAIStream, StreamingTextResponse } from "ai";
 import { getContext } from "@/lib/context";
 import { db } from "@/lib/db";
 import { chats, messages as _messages } from "@/lib/db/schema";
@@ -22,46 +22,52 @@ export async function POST(req: Request) {
     }
     const fileKey = _chats[0].fileKey;
     const lastMessage = messages[messages.length - 1];
-    const lastSystemMessage = messages[messages.length - 2];
-
-    await db.insert(_messages).values({
-      chatId,
-      content: lastMessage.content,
-      role: "user",
-    });
-
-    // Get the conversation context
     const context = await getContext(lastMessage.content, fileKey);
 
-    // Determine the bot's next message based on the context
-    const botResponse = await determineBotResponse(lastSystemMessage);
+    const prompt = {
+      role: "system",
+      content: `AI assistant is a brand new, powerful, human-like artificial intelligence.
+      The traits of AI include expert knowledge, helpfulness, cleverness, and articulateness.
+      AI is a well-behaved and well-mannered individual.
+      AI is always friendly, kind, and inspiring, and he is eager to provide vivid and thoughtful responses to the user.
+      AI has the sum of all knowledge in their brain, and is able to accurately answer nearly any question about any topic in conversation.
+      AI assistant is a big fan of Pinecone and Vercel.
+      START CONTEXT BLOCK
+      ${context}
+      END OF CONTEXT BLOCK
+      AI assistant will take into account any CONTEXT BLOCK that is provided in a conversation.
+      If the context does not provide the answer to question, the AI assistant will say, "I'm sorry, but I don't know the answer to that question".
+      AI assistant will not apologize for previous responses, but instead will indicated new information was gained.
+      AI assistant will not invent anything that is not drawn directly from the context.
+      `,
+    };
 
-    // Save the bot's message to the database
-    await db.insert(_messages).values({
-      chatId,
-      content: botResponse,
-      role: 'system',
+    const response = await openai.createChatCompletion({
+      model: "gpt-4-0125-preview",
+      messages: [
+        prompt,
+        ...messages.filter((message: Message) => message.role === "user"),
+      ],
+      stream: true,
     });
-
-    return NextResponse.json({ message: botResponse });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "An error occurred" }, { status: 500 });
-  }
-}
-
-async function determineBotResponse(lastSystemMessage) {
-  console.log(lastSystemMessage);
-  if (lastSystemMessage.id === '0') {
-    return "Response for step 0"
-  }
-  // Implement your logic to determine the bot's response based on the conversation context
-  // For example:
-  // if (context.step === 1) {
-  //   return "Response for step 1...";
-  // } else if (context.step === 2) {
-  //   return "Response for step 2...";
-  // }
-  // ...
-  return "Next message from the bot...";
+    const stream = OpenAIStream(response, {
+      onStart: async () => {
+        // save user message into db
+        await db.insert(_messages).values({
+          chatId,
+          content: lastMessage.content,
+          role: "user",
+        });
+      },
+      onCompletion: async (completion) => {
+        // save ai message into db
+        await db.insert(_messages).values({
+          chatId,
+          content: completion,
+          role: "system",
+        });
+      },
+    });
+    return new StreamingTextResponse(stream);
+  } catch (error) {}
 }
