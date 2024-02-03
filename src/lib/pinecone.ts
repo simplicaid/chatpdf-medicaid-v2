@@ -35,6 +35,7 @@ export async function loadS3IntoPinecone(fileKey: string) {
 
   // 2. split and segment the pdf
   const documents = await Promise.all(pages.map(prepareDocument));
+  console.log("pdf segmented successfully")
 
   // 3. vectorise and embed individual documents
   const vectors = await Promise.all(documents.flat().map(embedDocument));
