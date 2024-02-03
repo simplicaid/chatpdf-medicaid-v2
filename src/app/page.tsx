@@ -54,7 +54,7 @@ export default async function Home() {
           </div>
 
           <p className="max-w-xl mt-1 text-lg text-slate-600">
-            Complete the Medicaid procress in minutes instead of hours, with a
+            Complete the Medicaid process in minutes instead of hours, with a
             <br />
             verification system to ensure you are not making any mistakes.
           </p>
