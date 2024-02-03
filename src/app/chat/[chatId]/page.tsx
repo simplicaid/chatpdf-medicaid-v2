@@ -1,5 +1,6 @@
 import ChatComponent from "@/components/ChatComponent";
-import ChatSideBar from "@/components/ChatSideBar";
+// import ChatSideBar from "@/components/ChatSideBar";
+import DocumentUploadSidebar from "@/components/DocumentSideBar";
 import PDFViewer from "@/components/PDFViewer";
 import { db } from "@/lib/db";
 import { chats } from "@/lib/db/schema";
@@ -31,12 +32,32 @@ const ChatPage = async ({ params: { chatId } }: Props) => {
   const currentChat = _chats.find((chat) => chat.id === parseInt(chatId));
   const isPro = await checkSubscription();
 
+  const documentStatusData = {
+    mandatory_documents: [
+      { name: "Proof of Identity", status: "complete" },
+      { name: "Proof of Residence", status: "pending" },
+      { name: "Proof of Income", status: "not-started" },
+      // ...other documents
+    ],
+    optional_documents: [
+      { name: "Veteran Papers", status: "missing" },
+      { name: "Daycare Certificate", status: "complete" },
+      { name: "Pregnancy Certificate", status: "missing" },
+      { name: "Family Certificate", status: "not-started" },
+      { name: "Court Orders", status: "not-started" },
+      { name: "Current Insurance Policy", status: "not-started" },
+      { name: "Proof of Student Status", status: "not-started" },
+      { name: "Previous Medical Bills", status: "not-started" },
+      // ...other documents
+    ],
+  };
+
   return (
     <div className="flex max-h-screen h-screen">
       <div className="flex w-full max-h-screen h-screen">
-        {/* chat sidebar */}
+        {/* document upload sidebar */}
         <div className="flex-[1] max-w-xs">
-          <ChatSideBar chats={_chats} chatId={parseInt(chatId)} isPro={isPro} />
+          <DocumentUploadSidebar docProgress={documentStatusData} />
         </div>
         {/* pdf viewer */}
         <div className="max-h-screen p-4 h-screen flex-[5]">
