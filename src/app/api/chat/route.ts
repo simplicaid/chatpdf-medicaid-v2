@@ -18,10 +18,9 @@ const config = new Configuration({
 });
 const openai = new OpenAIApi(config);
 
-
 export async function POST(req: Request) {
   try {
-    const { messages, chatId } = await req.json();
+    const { messages, chatId, json_id } = await req.json();
     const _chats = await db.select().from(chats).where(eq(chats.id, chatId));
     if (_chats.length != 1) {
       return NextResponse.json({ error: "chat not found" }, { status: 404 });
@@ -50,7 +49,7 @@ export async function POST(req: Request) {
       
           6. Now only show your final response! Do not provide any explanations or details
       
-          CONTEXT:
+          SCENARIO:
       
             You will ask the user a series of questions regarding the document they need to upload. The document they must upload is the user's passport, the passport of the user's child, the user's paystubs (earned income, unearned income, self-employment benefits), and the user's utility bill.
             
@@ -108,52 +107,30 @@ export async function POST(req: Request) {
       onCompletion: async (completion) => {
         // Extract JSON object from the completion text
         const correction = extractJsonObject(completion);
-        const jsonObject = `{
-          "Legal First Name": "Debra",
-          "Middle Initial": "Ann",
-          "Legal Last Name": "Koye",
-          "Home Address is Homeless": null,
-          "Home Address  Street": null,
-          "Home Address  Apt": null,
-          "Home Address  City": null,
-          "Home Address  State": null,
-          "Home Address  Zipcode": null,
-          "Home Address  County": null,
-          "Full Legal Name": "Debra Ann Koye",
-          "Full Birth Name": "Debra Ann Koye",
-          "Sex is Male": "No",
-          "Sex is Female": "Yes",
-          "Sex is X": "No",
-          "Gender Identity is Male": "No",
-          "Gender Identity is Female": "Yes",
-          "Gender Identity isn Binaryorn Conforming": null,
-          "Gender Identity is X": null,
-          "Gender Identity is Transgender": null,
-          "Gender Identity  Different Identity  Is Different Identity": null,
-          "Gender Identity  Different Identity  Describe Identity": null,
-          "Date Of Birth  M M": "4",
-          "Date Of Birth  D D": "21",
-          "Date Of Birth  Y Y Y Y": "1988",
-          "City Of Birth": null,
-          "State Of Birth": "California",
-          "Country Of Birth": "U.S.A.",
-          "is Applying For Health Insurance ": "No",
-          "Immigration Status is U S Citizen": "Yes"
-      }`;
-        if (correction !== null) {
+        // Fetch the message at the index of json_id to use as the jsonObject
+        const jsonObjectMessage = await db
+          .select()
+          .from(_messages)
+          .where(eq(_messages.id, json_id));
+        const jsonObject = jsonObjectMessage ? jsonObjectMessage : null;
+        console.log("JSON_ID:", json_id, jsonObjectMessage);
+        if (correction !== null && jsonObject !== null) {
           console.log("Extracted JSON Object:", correction);
           try {
             // Assuming the JSON object is the data and you have a correction string
-            const response = await fetch('http://localhost:8000/update_data_with_correction', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                data: jsonObject, // Keep the JSON object string as a string
-                correction: correction, // Keep the correction string as a string
-              }),
-            });
+            const response = await fetch(
+              "http://localhost:8000/update_data_with_correction",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  data: jsonObject, // Use the fetched JSON object string
+                  correction: correction, // Keep the correction string as a string
+                }),
+              }
+            );
             if (!response.ok) {
               throw new Error(`HTTP error! status: ${response.status}`);
             }

@@ -14,7 +14,7 @@ interface DocumentProgress {
   optional_documents: DocumentItem[];
 }
 
-export type {DocumentItem, DocumentProgress, DocumentStatus}
+export type { DocumentItem, DocumentProgress, DocumentStatus };
 
 // Define the props that DocumentUploadSidebar will accept
 interface DocumentUploadSidebarProps {
@@ -37,13 +37,13 @@ const getStatusColor = (status: DocumentStatus) => {
 };
 
 const DocumentUploadSidebar: React.FC<DocumentUploadSidebarProps> = ({
-  chatId, docProgress,
+  chatId,
+  docProgress,
 }) => {
   return (
     <div className="w-full h-full overflow-auto p-4 text-gray-200 bg-gray-900">
       <DocUpload chatId={chatId} />
       <h1 className="mr-3 text-4xl font-semibold">Document Upload Progress</h1>
-
       <h2 className="mr-3 text-2xl">Mandatory Documents</h2>
       <ul>
         {docProgress.mandatory_documents.map((document) => (
@@ -57,7 +57,6 @@ const DocumentUploadSidebar: React.FC<DocumentUploadSidebarProps> = ({
           </li>
         ))}
       </ul>
-
       <h2 className="mr-3 text-2xl">Optional Documents</h2>
       <ul>
         {docProgress.optional_documents.map((document) => (

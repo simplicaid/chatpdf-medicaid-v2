@@ -6,29 +6,12 @@ import { Loader2 } from "lucide-react";
 
 type Props = { chatId: number };
 
-async function postMessage(chatId:number, content: string) {
-  const response = await fetch('/api/chat/message', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ chatId: chatId, content: content }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-
-  const result = await response.json();
-  console.log(result.message);
-}
-
 function getFileNameWithoutExtension(fileName: string) {
   // Check if fileName is valid
-  if (!fileName) return '';
+  if (!fileName) return "";
 
   // Find the last occurrence of '.'
-  const lastDotIndex = fileName.lastIndexOf('.');
+  const lastDotIndex = fileName.lastIndexOf(".");
 
   // If there's no '.', return the full fileName
   if (lastDotIndex === -1) return fileName;
@@ -38,6 +21,24 @@ function getFileNameWithoutExtension(fileName: string) {
 }
 
 const DocUpload = ({ chatId }: Props) => {
+  const postMessage = async (content: string) => {
+    const response = await fetch("/api/chat/message", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ chatId, content }),
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      return result.index;
+    } else {
+      // Handle error
+      toast.error("Failed to post message");
+    }
+  };
+
   const [uploading, setUploading] = React.useState(false);
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -65,7 +66,7 @@ const DocUpload = ({ chatId }: Props) => {
         const fileUrl = getS3Url(data.file_key);
         console.log(`File URL: ${fileUrl}`);
         console.log(`File Name: ${data.file_name}`);
-        const document_type = getFileNameWithoutExtension(data.file_name)
+        const document_type = getFileNameWithoutExtension(data.file_name);
         toast.success("File uploaded successfully");
 
         // Make API call to parse_document
@@ -87,9 +88,9 @@ const DocUpload = ({ chatId }: Props) => {
         const result = await response.json();
         console.log("Document parsed successfully:", result);
         toast.success("Document parsed successfully");
-        
+
         // Post the JSON output as user to the chatbot
-        postMessage(chatId, result.data)
+        const json_id = await postMessage(result.data);
 
         // TODO:
         // switch (document_type) {
@@ -107,7 +108,6 @@ const DocUpload = ({ chatId }: Props) => {
         //     // Handle other document types or errors
         //     break;
         // }
-
       } catch (error) {
         console.error("Error parsing document:", error);
         toast.error("Error parsing document");

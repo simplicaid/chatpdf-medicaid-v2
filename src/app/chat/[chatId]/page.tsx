@@ -1,5 +1,7 @@
 import ChatComponent from "@/components/ChatComponent";
-import DocumentUploadSidebar, { DocumentProgress } from "@/components/DocumentSideBar";
+import DocumentUploadSidebar, {
+  DocumentProgress,
+} from "@/components/DocumentSideBar";
 import PDFViewer from "@/components/PDFViewer";
 import { db } from "@/lib/db";
 import { chats } from "@/lib/db/schema";
@@ -7,7 +9,6 @@ import { checkSubscription } from "@/lib/subscription";
 import { auth } from "@clerk/nextjs";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
-import React from "react";
 
 type Props = {
   params: {
@@ -56,7 +57,10 @@ const ChatPage = async ({ params: { chatId } }: Props) => {
       <div className="flex w-full max-h-screen h-screen">
         {/* document upload sidebar */}
         <div className="flex-[1] max-w-xs">
-          <DocumentUploadSidebar chatId={parseInt(chatId) }docProgress={documentStatusData} />
+          <DocumentUploadSidebar
+            chatId={parseInt(chatId)}
+            docProgress={documentStatusData}
+          />
         </div>
         {/* chat component */}
         <div className="flex-[3] border-l-4 border-l-slate-200">

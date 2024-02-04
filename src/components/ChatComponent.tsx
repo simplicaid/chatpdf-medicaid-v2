@@ -10,13 +10,16 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Message } from "ai";
 
-type Props = { chatId: number };
+type Props = {
+  chatId: number;
+};
 
 const ChatComponent = ({ chatId }: Props) => {
   // TODO: for testing, set questionnaire state to true; later set to false
-  const [isQuestionnaireCompleted, setIsQuestionnaireCompleted] = React.useState(true);
+  const [isQuestionnaireCompleted, setIsQuestionnaireCompleted] =
+    React.useState(true);
   const [question, setQuestion] = React.useState(0);
-  const [verify, setVerify] =  React.useState(false);
+  const [verify, setVerify] = React.useState(false);
 
   const increment = () => {
     setQuestion(question + 1);
@@ -25,7 +28,7 @@ const ChatComponent = ({ chatId }: Props) => {
   const decrement = () => {
     setQuestion(question - 1);
   };
-  
+
   const { data, isLoading } = useQuery({
     queryKey: ["chat", chatId],
     queryFn: async () => {
@@ -34,23 +37,15 @@ const ChatComponent = ({ chatId }: Props) => {
       });
       return response.data;
     },
+    refetchInterval: 500,
   });
 
-  const initialAgentMessage: Message = {
-    id: '0',
-    content: `Hello! I am Simplicaid, and I'm here to guide you through the Medicaid application process.
-    We'll go through a series of questions to ensure we gather all the necessary information for your application,
-    and I'll try my best to fill out the Medicaid form for you. Please answer them to the best of your ability. Let's get started!`,
-    role: 'system',
-  };
-
-  // TODO: write to db so we can maintain messagse
-  const { input, handleInputChange, handleSubmit, messages } = useChat({
+  const { input, handleInputChange, handleSubmit, messages, append } = useChat({
     api: "/api/chat",
     body: {
       chatId,
     },
-    initialMessages: [initialAgentMessage],
+    initialMessages: data || [],
   });
 
   React.useEffect(() => {
@@ -63,15 +58,15 @@ const ChatComponent = ({ chatId }: Props) => {
     }
   }, [messages]);
 
-    // Render IntakeQuestionnaire
-    if (!isQuestionnaireCompleted) {
-      return (
-        <IntakeQuestionnaire
-          onComplete={() => setIsQuestionnaireCompleted(true)}
-        />
-      );
-    }  
-  
+  // Render IntakeQuestionnaire
+  if (!isQuestionnaireCompleted) {
+    return (
+      <IntakeQuestionnaire
+        onComplete={() => setIsQuestionnaireCompleted(true)}
+      />
+    );
+  }
+
   // Render chatbot
   return (
     <div className="flex flex-col h-screen">
@@ -81,15 +76,12 @@ const ChatComponent = ({ chatId }: Props) => {
       </div>
 
       {/* message list */}
-      <div className="flex-grow overflow-auto pl-3" id="message-container"> 
+      <div className="flex-grow overflow-auto pl-3" id="message-container">
         <MessageList messages={messages} isLoading={isLoading} />
       </div>
 
       {/* input form */}
-      <form
-        onSubmit={handleSubmit}
-        className="flex-none px-2 py-4 bg-white"
-      >
+      <form onSubmit={handleSubmit} className="flex-none px-2 py-4 bg-white">
         <div className="flex pl-3 pb-2">
           <Input
             value={input}
