@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import DocUpload from "./DocumentUpload";
 
 type DocumentStatus = "not-started" | "missing" | "pending" | "complete";
 
@@ -37,6 +38,7 @@ const DocumentUploadSidebar: React.FC<DocumentUploadSidebarProps> = ({
 }) => {
   return (
     <div className="w-full h-full overflow-auto p-4 text-gray-200 bg-gray-900">
+      <DocUpload />
       <h1 className="mr-3 text-4xl font-semibold">Document Upload Progress</h1>
 
       <h2 className="mr-3 text-2xl">Mandatory Documents</h2>
