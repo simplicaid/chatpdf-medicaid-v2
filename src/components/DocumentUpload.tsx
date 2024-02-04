@@ -8,11 +8,7 @@ const DocUpload = () => {
   const [uploading, setUploading] = React.useState(false);
 
   const { getRootProps, getInputProps } = useDropzone({
-    accept: { 
-      "application/pdf": [".pdf"],
-      "image/jpeg": [".jpeg", ".jpg"],
-      "image/png": [".png"],
-    }, // Adjust accepted file types as needed
+    accept: { "application/pdf": [".pdf"] }, // Adjust accepted file types as needed
     maxFiles: 1,
     onDrop: async (acceptedFiles) => {
       const file = acceptedFiles[0];
@@ -28,7 +24,6 @@ const DocUpload = () => {
           toast.error("Something went wrong");
           return;
         }
-        // Use getS3Url to get the file URL
         const fileUrl = getS3Url(data.file_key);
         console.log(`File URL: ${fileUrl}`);
         console.log(`File Name: ${data.file_name}`);
@@ -38,21 +33,24 @@ const DocUpload = () => {
         const response = await fetch('http://localhost:8000/parse_document', {
           method: 'POST',
           headers: {
-              'Content-Type': 'application/json',
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-              doc_type: "passport", // Set this accordingly if you have the document type
-              s3_url: fileUrl,
+            doc_type: data.file_name, // Set this accordingly if you have the document type
+            s3_url: fileUrl,
           }),
-          });
-  
-          if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-            }
+        });
 
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log("Document parsed successfully:", result);
+        toast.success("Document parsed successfully");
       } catch (error) {
-        console.error(error);
-        toast.error("Upload failed");
+        console.error("Error parsing document:", error);
+        toast.error("Error parsing document");
       } finally {
         setUploading(false);
       }
