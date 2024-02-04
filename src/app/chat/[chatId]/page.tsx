@@ -1,6 +1,5 @@
 import ChatComponent from "@/components/ChatComponent";
-// import ChatSideBar from "@/components/ChatSideBar";
-import DocumentUploadSidebar from "@/components/DocumentSideBar";
+import DocumentUploadSidebar, { DocumentProgress } from "@/components/DocumentSideBar";
 import PDFViewer from "@/components/PDFViewer";
 import { db } from "@/lib/db";
 import { chats } from "@/lib/db/schema";
@@ -32,7 +31,7 @@ const ChatPage = async ({ params: { chatId } }: Props) => {
   const currentChat = _chats.find((chat) => chat.id === parseInt(chatId));
   const isPro = await checkSubscription();
 
-  const documentStatusData = {
+  const documentStatusData: DocumentProgress = {
     mandatory_documents: [
       { name: "Proof of Identity", status: "complete" },
       { name: "Proof of Residence", status: "pending" },
@@ -57,7 +56,7 @@ const ChatPage = async ({ params: { chatId } }: Props) => {
       <div className="flex w-full max-h-screen h-screen">
         {/* document upload sidebar */}
         <div className="flex-[1] max-w-xs">
-          <DocumentUploadSidebar docProgress={documentStatusData} />
+          <DocumentUploadSidebar chatId={parseInt(chatId) }docProgress={documentStatusData} />
         </div>
         {/* chat component */}
         <div className="flex-[3] border-l-4 border-l-slate-200">
