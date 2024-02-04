@@ -5,8 +5,14 @@ import { db } from "@/lib/db";
 import { chats, messages as _messages } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import axios from "axios";
 
 export const runtime = "edge";
+
+function extractJsonObject(responseText: string): string | null {
+  const match = responseText.match(/\{.*\}/s);
+  return match ? match[0] : null;
+}
 
 const config = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -27,10 +33,6 @@ export async function POST(req: Request) {
     const prompt = {
       role: "system",
       content: `You are a helpful assistant whose job is to help guide people through the Medicaid application (especially the document upload) process. You do not respond as 'User' or pretend to be 'User'. You only respond once as 'Assistant'.
-
- 
-
-
       FOR EACH RESPONSE DO THE FOLLOWING:
           Generate your response by following the steps below:
       
@@ -104,6 +106,63 @@ export async function POST(req: Request) {
         });
       },
       onCompletion: async (completion) => {
+        // Extract JSON object from the completion text
+        const correction = extractJsonObject(completion);
+        const jsonObject = `{
+          "Legal First Name": "Debra",
+          "Middle Initial": "Ann",
+          "Legal Last Name": "Koye",
+          "Home Address is Homeless": null,
+          "Home Address  Street": null,
+          "Home Address  Apt": null,
+          "Home Address  City": null,
+          "Home Address  State": null,
+          "Home Address  Zipcode": null,
+          "Home Address  County": null,
+          "Full Legal Name": "Debra Ann Koye",
+          "Full Birth Name": "Debra Ann Koye",
+          "Sex is Male": "No",
+          "Sex is Female": "Yes",
+          "Sex is X": "No",
+          "Gender Identity is Male": "No",
+          "Gender Identity is Female": "Yes",
+          "Gender Identity isn Binaryorn Conforming": null,
+          "Gender Identity is X": null,
+          "Gender Identity is Transgender": null,
+          "Gender Identity  Different Identity  Is Different Identity": null,
+          "Gender Identity  Different Identity  Describe Identity": null,
+          "Date Of Birth  M M": "4",
+          "Date Of Birth  D D": "21",
+          "Date Of Birth  Y Y Y Y": "1988",
+          "City Of Birth": null,
+          "State Of Birth": "California",
+          "Country Of Birth": "U.S.A.",
+          "is Applying For Health Insurance ": "No",
+          "Immigration Status is U S Citizen": "Yes"
+      }`;
+        if (correction !== null) {
+          console.log("Extracted JSON Object:", correction);
+          try {
+            // Assuming the JSON object is the data and you have a correction string
+            const response = await fetch('http://localhost:8000/update_data_with_correction', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                data: jsonObject, // Keep the JSON object string as a string
+                correction: correction, // Keep the correction string as a string
+              }),
+            });
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const responseData = await response.json();
+            console.log("Update Data With Correction Response:", responseData);
+          } catch (error) {
+            console.error("Error calling update_data_with_correction:", error);
+          }
+        }
         // save ai message into db
         await db.insert(_messages).values({
           chatId,
