@@ -8,11 +8,16 @@ const DocUpload = () => {
   const [uploading, setUploading] = React.useState(false);
 
   const { getRootProps, getInputProps } = useDropzone({
-    accept: { "application/pdf": [".pdf"] }, // Adjust accepted file types as needed
+    accept: {
+      "application/pdf": [".pdf"],
+      "image/jpeg": [".jpeg", ".jpg"],
+      "image/png": [".png"],
+    }, // Adjust accepted file types as needed
     maxFiles: 1,
     onDrop: async (acceptedFiles) => {
       const file = acceptedFiles[0];
-      if (file.size > 10 * 1024 * 1024) { // File size limit
+      if (file.size > 10 * 1024 * 1024) {
+        // File size limit
         toast.error("File too large");
         return;
       }
@@ -30,13 +35,13 @@ const DocUpload = () => {
         toast.success("File uploaded successfully");
 
         // Make API call to parse_document
-        const response = await fetch('http://localhost:8000/parse_document', {
-          method: 'POST',
+        const response = await fetch("http://localhost:8000/parse_document", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            doc_type: data.file_name, // Set this accordingly if you have the document type
+            doc_type: "passport", // Set this accordingly if you have the document type
             s3_url: fileUrl,
           }),
         });
