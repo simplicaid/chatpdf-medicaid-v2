@@ -27,7 +27,7 @@ const DocUpload = ({ chatId }: Props) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ chatId, content }),
+      body: JSON.stringify({ chatId: chatId, content: content, role: "user" }),
     });
 
     if (response.ok) {

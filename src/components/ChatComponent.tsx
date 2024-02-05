@@ -9,13 +9,14 @@ import IntakeQuestionnaire from "./IntakeQuestionnaire";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Message } from "ai";
+import { initScriptLoader } from "next/script";
+import { db } from "@/lib/db";
 
 type Props = {
   chatId: number;
-  pdfUrl?: string; // Add this line
 };
 
-const ChatComponent = ({ chatId, pdfUrl }: Props) => {
+const ChatComponent = ({ chatId }: Props) => {
   // TODO: for testing, set questionnaire state to true; later set to false
   const [isQuestionnaireCompleted, setIsQuestionnaireCompleted] =
     React.useState(true);
@@ -45,19 +46,56 @@ const ChatComponent = ({ chatId, pdfUrl }: Props) => {
     id: "0",
     content: `Hello! I am Simplicaid, and I'm here to guide you through the Medicaid application process.
     We'll go through a series of questions to ensure we gather all the necessary information for your application,
-    and I'll try my best to fill out the Medicaid form for you. Please answer them to the best of your ability. Let me know when you're ready to start!`,
-    role: "system",
+    and I'll try my best to fill out the Medicaid form for you. Please answer them to the best of your ability. Let's get started!`,
+    role: "assistant",
   };
 
   const { input, handleInputChange, handleSubmit, messages, append } = useChat({
     api: "/api/chat",
     body: {
       chatId: chatId,
-      pdfUrl: pdfUrl,
     },
-    initialMessages: [initialAgentMessage, ...(data || [])],
+    initialMessages: data || [],
   });
-
+  // [initialAgentMessage, ...(]
+  if (messages.length === 0) {
+    append(initialAgentMessage);
+    fetch("/api/chat/message", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        chatId,
+        content: initialAgentMessage.content,
+        role: initialAgentMessage.role,
+      }),
+    });
+  } else if (data && messages.length > 1 && messages.length < data.length) {
+    const data_content = data[data.length - 1].content;
+    const isJSONContent = (content: string) => {
+      try {
+        JSON.parse(content);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    };
+    const lastMessageContent = messages[messages.length - 1]?.content;
+    console.log("IS JSON?", isJSONContent(data_content));
+    if (
+      isJSONContent(data_content) &&
+      !messages.some((message) => message.content === data_content)
+    ) {
+      const newMessageId = (messages.length + 1).toString();
+      const newMessage: Message = {
+        id: newMessageId,
+        content: data_content,
+        role: "user",
+      };
+      append(newMessage);
+    }
+  }
   React.useEffect(() => {
     const messageContainer = document.getElementById("message-container");
     if (messageContainer) {

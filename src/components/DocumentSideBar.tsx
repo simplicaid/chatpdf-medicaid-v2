@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DocUpload from "./DocumentUpload";
 
 type DocumentStatus = "not-started" | "missing" | "pending" | "complete";
@@ -38,8 +38,56 @@ const getStatusColor = (status: DocumentStatus) => {
 
 const DocumentUploadSidebar: React.FC<DocumentUploadSidebarProps> = ({
   chatId,
-  docProgress,
+  docProgress: initialDocProgress,
 }) => {
+  const [docProgress, setDocProgress] =
+    useState<DocumentProgress>(initialDocProgress);
+
+  // Moved getAndUpdateDocStatus function
+  const getAndUpdateDocStatus = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/doc_status", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) throw new Error("Failed to get DocStatus");
+
+      const responseData = await response.json();
+      const docStatus = responseData.data;
+      const docStatusChanged = responseData.changed;
+
+      // Transforming docStatus to match DocumentProgress structure
+      if (docStatusChanged) {
+        const updatedDocumentStatusData: DocumentProgress = {
+          mandatory_documents: Object.entries(
+            docStatus["Mandatory Documents"]
+          ).map(([name, status]) => ({
+            name,
+            status: status as DocumentStatus,
+          })),
+          optional_documents: Object.entries(
+            docStatus["Optional Documents"]
+          ).map(([name, status]) => ({
+            name,
+            status: status as DocumentStatus,
+          })),
+        };
+        setDocProgress(updatedDocumentStatusData);
+      }
+    } catch (error) {
+      console.error("Error fetching document status:", error);
+    }
+  };
+
+  // Use effect to fetch and update document status on mount
+  useEffect(() => {
+    const intervalId = setInterval(getAndUpdateDocStatus, 2000); // Call it every 3 seconds
+
+    return () => clearInterval(intervalId); // Clear the interval on component unmount
+  }, []);
+
   return (
     <div className="w-full h-full overflow-auto p-6 text-gray-200 bg-gray-800 shadow-lg">
       <div className="mb-8">
