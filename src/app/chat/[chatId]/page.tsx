@@ -1,6 +1,7 @@
 import ChatComponent from "@/components/ChatComponent";
 import DocumentUploadSidebar, {
   DocumentProgress,
+  DocumentStatus,
 } from "@/components/DocumentSideBar";
 import PDFViewer from "@/components/PDFViewer";
 import { db } from "@/lib/db";
@@ -61,17 +62,17 @@ const ChatPage = async ({ params: { chatId } }: Props) => {
   const newPdfUrl = await fetchAndUpdatePdfUrl();
   pdfUrl = newPdfUrl;
 
-  const documentStatusData: DocumentProgress = {
+  let initialDocumentStatusData: DocumentProgress = {
     mandatory_documents: [
-      { name: "Proof of Identity", status: "complete" },
-      { name: "Proof of Residence", status: "pending" },
+      { name: "Proof of Identity", status: "not-started" },
+      { name: "Proof of Residence", status: "not-started" },
       { name: "Proof of Income", status: "not-started" },
       // ...other documents
     ],
     optional_documents: [
-      { name: "Veteran Papers", status: "missing" },
-      { name: "Daycare Certificate", status: "complete" },
-      { name: "Pregnancy Certificate", status: "missing" },
+      { name: "Veteran Papers", status: "not-started" },
+      { name: "Daycare Certificate", status: "not-started" },
+      { name: "Pregnancy Certificate", status: "not-started" },
       { name: "Family Certificate", status: "not-started" },
       { name: "Court Orders", status: "not-started" },
       { name: "Current Insurance Policy", status: "not-started" },
@@ -80,6 +81,44 @@ const ChatPage = async ({ params: { chatId } }: Props) => {
       // ...other documents
     ],
   };
+  // Function to fetch newPdfUrl and update state
+  const getAndUpdateDocStatus = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/doc_status", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) throw new Error("Failed to get DocStatus");
+
+      const responseData = await response.json();
+      const docStatus = responseData.data;
+      console.log("DOC STATUS", typeof docStatus);
+      console.log(docStatus);
+
+      // Transforming docStatus to match DocumentProgress structure
+      const updatedDocumentStatusData: DocumentProgress = {
+        mandatory_documents: Object.entries(
+          docStatus["Mandatory Documents"]
+        ).map(([name, status]) => ({
+          name,
+          status: status as DocumentStatus,
+        })),
+        optional_documents: Object.entries(docStatus["Optional Documents"]).map(
+          ([name, status]) => ({
+            name,
+            status: status as DocumentStatus,
+          })
+        ),
+      };
+      return updatedDocumentStatusData;
+    } catch (error) {
+      console.error("Error fetching new PDF URL:", error);
+      return initialDocumentStatusData;
+    }
+  };
+  const documentStatusData: DocumentProgress = await getAndUpdateDocStatus();
 
   return (
     <div className="flex max-h-screen h-screen">
