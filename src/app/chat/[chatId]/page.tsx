@@ -9,6 +9,7 @@ import { checkSubscription } from "@/lib/subscription";
 import { auth } from "@clerk/nextjs";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
+import React, { useState } from "react";
 
 type Props = {
   params: {
@@ -30,7 +31,35 @@ const ChatPage = async ({ params: { chatId } }: Props) => {
   }
 
   const currentChat = _chats.find((chat) => chat.id === parseInt(chatId));
+  let pdfUrl = currentChat?.pdfUrl || "";
+  // Function to fetch newPdfUrl and update state
+  const fetchAndUpdatePdfUrl = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/pdf_url", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          pdfUrl: currentChat?.pdfUrl || "",
+        }),
+      });
+      if (!response.ok) throw new Error("Failed to fetch new PDF URL");
+
+      const responseData = await response.json();
+      console.log(responseData);
+      const newPdfUrl = responseData.pdfUrl;
+      return newPdfUrl;
+    } catch (error) {
+      console.error("Error fetching new PDF URL:", error);
+    }
+  };
   const isPro = await checkSubscription();
+
+  // Assuming initialPdfUrl is obtained here
+  const initialPdfUrl = currentChat?.pdfUrl || "";
+  const newPdfUrl = await fetchAndUpdatePdfUrl();
+  pdfUrl = newPdfUrl;
 
   const documentStatusData: DocumentProgress = {
     mandatory_documents: [
@@ -64,11 +93,11 @@ const ChatPage = async ({ params: { chatId } }: Props) => {
         </div>
         {/* chat component */}
         <div className="flex-[3] border-l-4 border-l-slate-200">
-          <ChatComponent chatId={parseInt(chatId)} />
+          <ChatComponent chatId={parseInt(chatId)} pdfUrl={pdfUrl} />
         </div>
         {/* pdf viewer */}
         <div className="max-h-screen p-4 h-screen flex-[5]">
-          <PDFViewer pdf_url={currentChat?.pdfUrl || ""} />
+          <PDFViewer pdf_url={pdfUrl || currentChat?.pdfUrl || ""} />
         </div>
       </div>
     </div>

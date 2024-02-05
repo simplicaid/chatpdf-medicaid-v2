@@ -12,9 +12,10 @@ import { Message } from "ai";
 
 type Props = {
   chatId: number;
+  pdfUrl?: string; // Add this line
 };
 
-const ChatComponent = ({ chatId }: Props) => {
+const ChatComponent = ({ chatId, pdfUrl }: Props) => {
   // TODO: for testing, set questionnaire state to true; later set to false
   const [isQuestionnaireCompleted, setIsQuestionnaireCompleted] =
     React.useState(true);
@@ -43,7 +44,8 @@ const ChatComponent = ({ chatId }: Props) => {
   const { input, handleInputChange, handleSubmit, messages, append } = useChat({
     api: "/api/chat",
     body: {
-      chatId,
+      chatId: chatId,
+      pdfUrl: pdfUrl,
     },
     initialMessages: data || [],
   });

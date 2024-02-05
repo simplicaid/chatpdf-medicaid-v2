@@ -20,7 +20,7 @@ const openai = new OpenAIApi(config);
 
 export async function POST(req: Request) {
   try {
-    const { messages, chatId, json_id } = await req.json();
+    const { messages, chatId, pdfUrl } = await req.json(); // Extract pdfUrl here
     const _chats = await db.select().from(chats).where(eq(chats.id, chatId));
     if (_chats.length != 1) {
       return NextResponse.json({ error: "chat not found" }, { status: 404 });
@@ -108,16 +108,30 @@ export async function POST(req: Request) {
         // Extract JSON object from the completion text
         const correction = extractJsonObject(completion);
         // Fetch the message at the index of json_id to use as the jsonObject
-        const jsonObjectMessage = await db
-          .select()
-          .from(_messages)
-          .where(eq(_messages.id, json_id));
-        const jsonObject = jsonObjectMessage ? jsonObjectMessage : null;
-        console.log("JSON_ID:", json_id, jsonObjectMessage);
+        let jsonObject = null;
+        try {
+          // Assuming the JSON object is the data and you have a correction string
+          const response = await fetch(
+            "http://localhost:8000/get_last_processed_document",
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const responseData = await response.json();
+          jsonObject = JSON.stringify(responseData.data);
+        } catch (error) {
+          console.error("Error calling get_last_processed_document:", error);
+        }
+
         if (correction !== null && jsonObject !== null) {
-          console.log("Extracted JSON Object:", correction);
+          console.log("PDFURL", pdfUrl);
           try {
-            // Assuming the JSON object is the data and you have a correction string
             const response = await fetch(
               "http://localhost:8000/update_data_with_correction",
               {
@@ -126,6 +140,7 @@ export async function POST(req: Request) {
                   "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
+                  input_url: pdfUrl || "", // Add this line,
                   data: jsonObject, // Use the fetched JSON object string
                   correction: correction, // Keep the correction string as a string
                 }),
@@ -135,6 +150,7 @@ export async function POST(req: Request) {
               throw new Error(`HTTP error! status: ${response.status}`);
             }
             const responseData = await response.json();
+            const newPdfUrl = responseData.output_url;
             console.log("Update Data With Correction Response:", responseData);
           } catch (error) {
             console.error("Error calling update_data_with_correction:", error);
