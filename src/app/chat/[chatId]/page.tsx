@@ -48,7 +48,6 @@ const ChatPage = async ({ params: { chatId } }: Props) => {
       if (!response.ok) throw new Error("Failed to fetch new PDF URL");
 
       const responseData = await response.json();
-      console.log(responseData);
       const newPdfUrl = responseData.pdfUrl;
       return newPdfUrl;
     } catch (error) {
@@ -71,8 +70,8 @@ const ChatPage = async ({ params: { chatId } }: Props) => {
     ],
     optional_documents: [
       { name: "Veteran Papers", status: "not-started" },
-      { name: "Daycare Certificate", status: "not-started" },
-      { name: "Pregnancy Certificate", status: "not-started" },
+      { name: "Daycare Receipt", status: "not-started" },
+      { name: "Proof of Pregnancy", status: "not-started" },
       { name: "Family Certificate", status: "not-started" },
       { name: "Court Orders", status: "not-started" },
       { name: "Current Insurance Policy", status: "not-started" },
@@ -94,8 +93,6 @@ const ChatPage = async ({ params: { chatId } }: Props) => {
 
       const responseData = await response.json();
       const docStatus = responseData.data;
-      console.log("DOC STATUS", typeof docStatus);
-      console.log(docStatus);
 
       // Transforming docStatus to match DocumentProgress structure
       const updatedDocumentStatusData: DocumentProgress = {
@@ -124,19 +121,19 @@ const ChatPage = async ({ params: { chatId } }: Props) => {
     <div className="flex max-h-screen h-screen">
       <div className="flex w-full max-h-screen h-screen">
         {/* document upload sidebar */}
-        <div className="flex-[1] max-w-xs">
+        <div className="flex-[1] max-w-xs p-0 m-0">
           <DocumentUploadSidebar
             chatId={parseInt(chatId)}
             docProgress={documentStatusData}
           />
         </div>
-        {/* chat component */}
-        <div className="flex-[3] border-l-4 border-l-slate-200">
-          <ChatComponent chatId={parseInt(chatId)} pdfUrl={pdfUrl} />
-        </div>
         {/* pdf viewer */}
-        <div className="max-h-screen p-4 h-screen flex-[5]">
+        <div className="max-h-screen p-4 h-screen flex-[5] p-0 m-0">
           <PDFViewer pdf_url={pdfUrl || currentChat?.pdfUrl || ""} />
+        </div>
+        {/* chat component */}
+        <div className="flex-[3] border-l-4 border-l-slate-200 p-0 m-0">
+          <ChatComponent chatId={parseInt(chatId)} pdfUrl={pdfUrl} />
         </div>
       </div>
     </div>

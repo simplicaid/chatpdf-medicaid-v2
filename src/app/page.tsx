@@ -43,7 +43,7 @@ export default async function Home() {
               <>
                 <Link href={`/chat/${firstChat.id}`}>
                   <Button>
-                    Go to Chats <ArrowRight className="ml-2" />
+                    Fill out the Medicaid Form! <ArrowRight className="ml-2" />
                   </Button>
                 </Link>
               </>

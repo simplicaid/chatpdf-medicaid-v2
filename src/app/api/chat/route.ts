@@ -53,16 +53,16 @@ export async function POST(req: Request) {
       
             You will ask the user a series of questions regarding the document they need to upload. The document they must upload is the user's passport, the passport of the user's child, the user's paystubs (earned income, unearned income, self-employment benefits), and the user's utility bill.
             
-            You will first introduce yourself and explain your role in this chat (only greet the user once in the beginning). Then, you will ask the user to upload the necessary documents one by one. First, ask if the user has the document. If the user answers that they have the document, then ask the user to upload the document.  The user will respond with a JSON of the parsed information from the document. 
-            The JSON response will have some empty or None fields. For each field that is empty or Null, ask a direct, informative question to answer the field, if they can answer it. Ask each null field question individually, one response at a time (do not overwhelm the user with all the questions)! If you can combine some of the null field questions into one question, do that. If the user cannot answer it, leave the JSON field empty.  
+            Do not introduce yourself. Instead, you will ask the user to upload the necessary documents one by one. First, ask if the user has the document. If the user answers that they have the document, then ask the user to upload the document.  The user will respond with a JSON of the parsed information from the document. 
+            The JSON response will have some empty or None fields. For each field that is empty or Null, ask a direct, informative question to answer the field, if they can answer it (the questions should not contain the json field itself, instead it should try to ask informative questions based on the JSON field). If you can combine some of the null field questions into one question, do that. If the user cannot answer it, leave the JSON field empty. However, ask each question individually, one response at a time (do not overwhelm the user with all the questions in one response)!   
             Specifically follow this process for handling questions for empty or None fields:
             1. Address the first null field by asking for the specific information needed for that field alone.
             2. Wait for the user's response before moving to the next null field.
             3. If the user is able to provide the information, the assistant would update the JSON and then proceed to ask about the next null field.
             4. This process would continue one question at a time until all the null fields are addressed or the user indicates they cannot provide the information, leaving the JSON field empty.
             
-            After you go through all of the empty JSON fields, respond with the final JSON field for verification.
-            If the user does not have the document or if the user verifies the JSON fields, move on and ask the user to upload the next document.
+            After you go through all of the empty JSON fields, respond with the final, updated JSON for verification. Do not skip this verification process. Go through this verification step even if all the fields are filled!
+            You may only move on to the next document after the user confirms that the JSON is correct or if they state that they do not have the document. Do not provide details about the next document until the user does says one of those 2 responses.
 
       
           CONVERSATION HISTORY:
@@ -130,7 +130,6 @@ export async function POST(req: Request) {
         }
 
         if (correction !== null && jsonObject !== null) {
-          console.log("PDFURL", pdfUrl);
           try {
             const response = await fetch(
               "http://localhost:8000/update_data_with_correction",
@@ -151,7 +150,6 @@ export async function POST(req: Request) {
             }
             const responseData = await response.json();
             const newPdfUrl = responseData.output_url;
-            console.log("Update Data With Correction Response:", responseData);
           } catch (error) {
             console.error("Error calling update_data_with_correction:", error);
           }

@@ -41,13 +41,21 @@ const ChatComponent = ({ chatId, pdfUrl }: Props) => {
     refetchInterval: 500,
   });
 
+  const initialAgentMessage: Message = {
+    id: "0",
+    content: `Hello! I am Simplicaid, and I'm here to guide you through the Medicaid application process.
+    We'll go through a series of questions to ensure we gather all the necessary information for your application,
+    and I'll try my best to fill out the Medicaid form for you. Please answer them to the best of your ability. Let me know when you're ready to start!`,
+    role: "system",
+  };
+
   const { input, handleInputChange, handleSubmit, messages, append } = useChat({
     api: "/api/chat",
     body: {
       chatId: chatId,
       pdfUrl: pdfUrl,
     },
-    initialMessages: data || [],
+    initialMessages: [initialAgentMessage, ...(data || [])],
   });
 
   React.useEffect(() => {
@@ -73,25 +81,27 @@ const ChatComponent = ({ chatId, pdfUrl }: Props) => {
   return (
     <div className="flex flex-col h-screen">
       {/* header */}
-      <div className="p-2 bg-white">
-        <h3 className="text-2xl font-bold pt-4 pl-4">Chat</h3>
+      <div className="p-2 bg-white rounded-full">
+        <h3 className="text-2xl font-bold pt-4 pl-4">Simplicaid Chat</h3>
       </div>
 
       {/* message list */}
       <div className="flex-grow overflow-auto pl-3" id="message-container">
         <MessageList messages={messages} isLoading={isLoading} />
       </div>
-
       {/* input form */}
-      <form onSubmit={handleSubmit} className="flex-none px-2 py-4 bg-white">
+      <form
+        onSubmit={handleSubmit}
+        className="flex-none px-2 py-4 bg-white rounded-lg"
+      >
         <div className="flex pl-3 pb-2">
           <Input
             value={input}
             onChange={handleInputChange}
             placeholder="Enter..."
-            className="w-full"
+            className="w-full rounded-l-md"
           />
-          <Button type="submit" className="bg-blue-600 ml-2">
+          <Button type="submit" className="bg-blue-600 ml-2 rounded-r-md">
             <Send className="h-4 w-4" />
           </Button>
         </div>

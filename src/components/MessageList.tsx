@@ -18,7 +18,7 @@ const MessageList = ({ messages, isLoading }: Props) => {
   }
   if (!messages) return <></>;
   return (
-    <div className="flex flex-col gap-2.5 px-4">
+    <div className="flex flex-col gap-2 px-4">
       {messages.map((message) => {
         const isUser = message.role === "user";
         return (
@@ -32,28 +32,31 @@ const MessageList = ({ messages, isLoading }: Props) => {
             {/* Message bubble */}
             <div
               className={cn(
-                "flex flex-col max-w-[280px] leading-1.5 border-gray-200 shadow-md",
+                "flex flex-col max-w-md leading-1.5 border-gray-200 shadow-md",
                 {
-                  "bg-blue-600 text-white rounded-xl p-2.5": isUser,
-                  "bg-gray-100 text-gray-900 rounded-xl p-3.5": !isUser, 
+                  "bg-blue-600 text-white rounded-xl py-2 px-4": isUser, // Reduced padding top and bottom
+                  "bg-gray-100 text-gray-900 rounded-xl py-2 px-4": !isUser, // Reduced padding top and bottom
                 }
               )}
             >
               {/* Sender label */}
               <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                <span className={cn("text-sm font-semibold", {
-                  "text-white": isUser,
-                  "text-gray-900 dark:text-white": !isUser,
-                })}>
-                  {isUser ? "" : "Simplicaid:"}
+                <span
+                  className={cn("text-sm font-semibold", {
+                    "text-white": isUser,
+                    "text-gray-900 dark:text-white": !isUser,
+                  })}
+                >
+                  {isUser ? "You" : "Simplicaid"}
                 </span>
               </div>
               {/* Message content */}
-              {/* <p className="text-sm font-normal py-2.5">{message.content}</p> */}
-              <p className={cn("text-sm font-normal", {
-                "text-center": isUser, // Align right for user messages
-                "text-left py-2.5": !isUser, // Align left for assistant messages
-              })}>
+              <p
+                className={cn("text-sm font-normal", {
+                  "text-center": isUser,
+                  "text-left": !isUser, // Removed additional padding for non-user messages
+                })}
+              >
                 {message.content}
               </p>
             </div>

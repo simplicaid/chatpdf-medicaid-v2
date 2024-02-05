@@ -41,35 +41,53 @@ const DocumentUploadSidebar: React.FC<DocumentUploadSidebarProps> = ({
   docProgress,
 }) => {
   return (
-    <div className="w-full h-full overflow-auto p-4 text-gray-200 bg-gray-900">
-      <DocUpload chatId={chatId} />
-      <h1 className="mr-3 text-4xl font-semibold">Document Upload Progress</h1>
-      <h2 className="mr-3 text-2xl">Mandatory Documents</h2>
-      <ul>
-        {docProgress.mandatory_documents.map((document) => (
-          <li key={document.name} className="flex items-center gap-2">
-            <span
-              className={`h-4 w-4 rounded-full ${getStatusColor(
-                document.status
-              )}`}
-            />
-            {document.name}
-          </li>
-        ))}
-      </ul>
-      <h2 className="mr-3 text-2xl">Optional Documents</h2>
-      <ul>
-        {docProgress.optional_documents.map((document) => (
-          <li key={document.name} className="flex items-center gap-2">
-            <span
-              className={`h-4 w-4 rounded-full ${getStatusColor(
-                document.status
-              )}`}
-            />
-            {document.name}
-          </li>
-        ))}
-      </ul>
+    <div className="w-full h-full overflow-auto p-6 text-gray-200 bg-gray-800 shadow-lg">
+      <div className="mb-8">
+        <DocUpload chatId={chatId} />
+      </div>
+      {/* <h1 className="mb-4 text-2xl font-bold text-center text-indigo-300">
+        Document Upload Progress
+      </h1> */}
+      <div className="mb-6">
+        <h2 className="mb-2 text-lg font-semibold text-blue-200">
+          Mandatory Documents
+        </h2>
+        <ul className="pl-4">
+          {docProgress.mandatory_documents.map((document) => (
+            <li
+              key={document.name}
+              className="flex items-center gap-4 mb-2 p-2 rounded-md bg-gray-700"
+            >
+              <span
+                className={`h-6 w-6 rounded-full ${getStatusColor(
+                  document.status
+                )}`}
+              />
+              <span className="text-sm font-medium">{document.name}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <h2 className="mb-2 text-lg font-semibold text-blue-200">
+          Optional Documents
+        </h2>
+        <ul className="pl-4">
+          {docProgress.optional_documents.map((document) => (
+            <li
+              key={document.name}
+              className="flex items-center gap-4 mb-2 p-2 rounded-md bg-gray-700"
+            >
+              <span
+                className={`h-6 w-6 rounded-full ${getStatusColor(
+                  document.status
+                )}`}
+              />
+              <span className="text-sm font-medium">{document.name}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };

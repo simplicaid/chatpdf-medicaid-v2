@@ -2,7 +2,7 @@ import React from "react";
 import { useDropzone } from "react-dropzone";
 import { uploadToS3, getS3Url } from "@/lib/s3";
 import { toast } from "react-hot-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Inbox } from "lucide-react";
 
 type Props = { chatId: number };
 
@@ -64,8 +64,6 @@ const DocUpload = ({ chatId }: Props) => {
           return;
         }
         const fileUrl = getS3Url(data.file_key);
-        console.log(`File URL: ${fileUrl}`);
-        console.log(`File Name: ${data.file_name}`);
         const document_type = getFileNameWithoutExtension(data.file_name);
         toast.success("File uploaded successfully");
 
@@ -133,7 +131,8 @@ const DocUpload = ({ chatId }: Props) => {
           </>
         ) : (
           <>
-            <p className="mt-2 text-sm text-slate-400">Drop files here</p>
+            <Inbox className="w-10 h-10 text-blue-500" />
+            <p className="mt-2 text-sm text-slate-400">Drop Documents Here</p>
           </>
         )}
       </div>
