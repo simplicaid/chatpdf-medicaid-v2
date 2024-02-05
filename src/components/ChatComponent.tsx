@@ -14,9 +14,10 @@ import { db } from "@/lib/db";
 
 type Props = {
   chatId: number;
+  pdfUrl: string;
 };
 
-const ChatComponent = ({ chatId }: Props) => {
+const ChatComponent = ({ chatId, pdfUrl }: Props) => {
   // TODO: for testing, set questionnaire state to true; later set to false
   const [isQuestionnaireCompleted, setIsQuestionnaireCompleted] =
     React.useState(true);
@@ -54,6 +55,7 @@ const ChatComponent = ({ chatId }: Props) => {
     api: "/api/chat",
     body: {
       chatId: chatId,
+      pdfUrl: pdfUrl,
     },
     initialMessages: data || [],
   });
@@ -71,7 +73,8 @@ const ChatComponent = ({ chatId }: Props) => {
         role: initialAgentMessage.role,
       }),
     });
-  } else if (data && messages.length > 1 && messages.length < data.length) {
+  }
+  if (data && messages.length > 1 && messages.length < data.length) {
     const data_content = data[data.length - 1].content;
     const isJSONContent = (content: string) => {
       try {
@@ -81,8 +84,6 @@ const ChatComponent = ({ chatId }: Props) => {
         return false;
       }
     };
-    const lastMessageContent = messages[messages.length - 1]?.content;
-    console.log("IS JSON?", isJSONContent(data_content));
     if (
       isJSONContent(data_content) &&
       !messages.some((message) => message.content === data_content)
@@ -93,8 +94,13 @@ const ChatComponent = ({ chatId }: Props) => {
         content: data_content,
         role: "user",
       };
+      console.log("New Message Appended");
       append(newMessage);
     }
+  } else {
+    console.log("We're good");
+    console.log("Messages", messages);
+    console.log("Data", data);
   }
   React.useEffect(() => {
     const messageContainer = document.getElementById("message-container");

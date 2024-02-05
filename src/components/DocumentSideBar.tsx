@@ -83,7 +83,7 @@ const DocumentUploadSidebar: React.FC<DocumentUploadSidebarProps> = ({
 
   // Use effect to fetch and update document status on mount
   useEffect(() => {
-    const intervalId = setInterval(getAndUpdateDocStatus, 2000); // Call it every 3 seconds
+    const intervalId = setInterval(getAndUpdateDocStatus, 3000); // Call it every 3 seconds
 
     return () => clearInterval(intervalId); // Clear the interval on component unmount
   }, []);

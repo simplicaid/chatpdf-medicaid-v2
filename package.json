@@ -55,6 +55,7 @@
     "typescript": "5.2.2"
   },
   "devDependencies": {
-    "cross-env": "^7.0.3"
+    "cross-env": "^7.0.3",
+    "react-json-pretty": "^2.2.0"
   }
 }

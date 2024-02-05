@@ -3,7 +3,8 @@ import DocumentUploadSidebar, {
   DocumentProgress,
   DocumentStatus,
 } from "@/components/DocumentSideBar";
-import PDFViewer from "@/components/PDFViewer";
+// import PDFViewer from "@/components/PDFViewer";
+import ToggleViewer from "@/components/ToggleViewer";
 import { db } from "@/lib/db";
 import { chats } from "@/lib/db/schema";
 import { checkSubscription } from "@/lib/subscription";
@@ -59,20 +60,20 @@ const ChatPage = async ({ params: { chatId } }: Props) => {
   return (
     <div className="flex max-h-screen h-screen">
       <div className="flex w-full max-h-screen h-screen">
-        {/* document upload sidebar */}
+        {/* Document upload sidebar */}
         <div className="flex-[1] max-w-xs p-0 m-0">
           <DocumentUploadSidebar
             chatId={parseInt(chatId)}
             docProgress={initialDocumentStatusData}
           />
         </div>
-        {/* pdf viewer */}
+        {/* Toggle viewer */}
         <div className="max-h-screen p-4 h-screen flex-[5] p-0 m-0">
-          <PDFViewer pdf_url={currentChat?.pdfUrl || ""} />
+          <ToggleViewer chatId={chatId} pdfUrl={pdfUrl} />
         </div>
-        {/* chat component */}
+        {/* Chat component */}
         <div className="flex-[3] border-l-4 border-l-slate-200 p-0 m-0">
-          <ChatComponent chatId={parseInt(chatId)} />
+          <ChatComponent chatId={parseInt(chatId)} pdfUrl={currentChat?.pdfUrl || ""} />
         </div>
       </div>
     </div>
