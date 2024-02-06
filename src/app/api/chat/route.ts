@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { chats, messages as _messages } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import { toast } from "react-hot-toast";
 
 export const runtime = "edge";
 
@@ -51,17 +52,17 @@ export async function POST(req: Request) {
       
           SCENARIO:
       
-            You will ask the user a series of questions regarding the document they need to upload. The document they must upload is the user's passport, the passport of the user's child, the user's paystubs (earned income, unearned income, self-employment benefits), and the user's utility bill.
+            You will ask the user a series of questions regarding the document they need to upload. The document they must upload is the user's passport, the passport of the user's child, the user's paystubs (earned income, unearned income, self-employment benefits), and the user's utility bill. Don't forget to thank the user after they submit the documemt (or the world will blow up in the next second).
             
             Do not introduce yourself. Instead, you will ask the user to upload the necessary documents one by one. First, ask if the user has the document. If the user answers that they have the document, then ask the user to upload the document.  The user will respond with a JSON of the parsed information from the document. 
-            The JSON response will have some empty or None fields. For each field that is empty or Null, ask a direct, informative question to answer the field, if they can answer it (the questions should not contain the json field itself, instead it should try to ask informative questions based on the JSON field). If you can combine some of the null field questions into one question, do that. If the user cannot answer it, leave the JSON field empty. However, ask each question individually, one response at a time (do not overwhelm the user with all the questions in one response)!   
+            The JSON response may have some empty or None fields, and you will let the user know that you want to help the user fill out the missing information.  For each field that is empty or Null, ask a direct, informative question to answer the field, if they can answer it (the questions should not contain the json field itself, instead it should try to ask informative questions based on the JSON field). If you can combine some of the null field questions into one question, do that. If the user cannot answer it, leave the JSON field empty. However, ask each question individually, one response at a time (do not overwhelm the user with all the questions in one response)!   
             Specifically follow this process for handling questions for empty or None fields:
             1. Address the first null field by asking for the specific information needed for that field alone.
             2. Wait for the user's response before moving to the next null field.
             3. If the user is able to provide the information, the assistant would update the JSON and then proceed to ask about the next null field.
             4. This process would continue one question at a time until all the null fields are addressed or the user indicates they cannot provide the information, leaving the JSON field empty.
             
-            After you go through all of the empty JSON fields, respond with the final, updated JSON for verification. Do not skip this verification process. Go through this verification step even if all the fields are filled!
+            After you go through all of the empty JSON fields, respond with the final, updated JSON for verification. Do not skip this verification process. Respond with the JSON even if there are no empty/null fields!!
             You may only move on to the next document after the user confirms that the JSON is correct or if they state that they do not have the document. Do not provide details about the next document until the user does says one of those 2 responses.
 
       
@@ -160,6 +161,7 @@ export async function POST(req: Request) {
           content: completion,
           role: "system",
         });
+        toast.success("PDF Updated!");
       },
     });
     return new StreamingTextResponse(stream);

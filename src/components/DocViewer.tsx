@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 import JSONPretty from "react-json-pretty"; // Assuming you have this package installed
 
 const DocViewer = () => {
@@ -19,8 +20,8 @@ const DocViewer = () => {
 
         const responseData = await response.json();
         const newDocUrl = responseData.docUrl;
+        setDocUrl(newDocUrl);
         if (responseData.changed) {
-          setDocUrl(newDocUrl);
         }
       } catch (error) {
         console.error("Error fetching new Document URL:", error);
@@ -48,8 +49,8 @@ const DocViewer = () => {
       }
     };
 
-    const intervalIdDocUrl = setInterval(fetchAndUpdateDocUrl, 1000); // Call it every 5 seconds
-    const intervalIdJson = setInterval(fetchAndUpdateJson, 1000);
+    const intervalIdDocUrl = setInterval(fetchAndUpdateDocUrl, 3000); // Call it every 5 seconds
+    const intervalIdJson = setInterval(fetchAndUpdateJson, 3000);
     return () => {
       clearInterval(intervalIdDocUrl); // Clear the first interval on component unmount
       clearInterval(intervalIdJson); // Clear the second interval on component unmount

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React from "react";
 import { Input } from "./ui/input";
 import { useChat } from "ai/react";
 import { Button } from "./ui/button";
@@ -11,7 +11,6 @@ import axios from "axios";
 import { Message } from "ai";
 import { initScriptLoader } from "next/script";
 import { db } from "@/lib/db";
-import { json } from "stream/consumers";
 
 type Props = {
   chatId: number;
@@ -57,7 +56,7 @@ const ChatComponent = ({ chatId, pdfUrl }: Props) => {
       chatId: chatId,
       pdfUrl: pdfUrl,
     },
-    // initialMessages: data || [],
+    initialMessages: data || [],
   });
   // [initialAgentMessage, ...(]
   if (messages.length === 0) {
@@ -76,69 +75,30 @@ const ChatComponent = ({ chatId, pdfUrl }: Props) => {
   }
   console.log("Data (db)", data);
   console.log("Messages", messages);
-  useEffect(() => {
-    const fetchDocument = async () => {
-      console.log("FETCH DOCUMENT!");
-      let jsonObject: string | null = null;
+  if (data && data.length > 1 && messages.length > 1) {
+    const data_content = data[data.length - 1].content;
+    const isJSONContent = (content: string) => {
       try {
-        const response = await fetch(
-          "http://localhost:8000/get_last_processed_document",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const responseData = await response.json();
-        jsonObject = JSON.stringify(responseData.data);
-        if (
-          jsonObject &&
-          !messages.some((message) => message.content === jsonObject)
-        ) {
-          const newMessageId = (messages.length + 1).toString();
-          const newMessage: Message = {
-            id: newMessageId,
-            content: jsonObject,
-            role: "user",
-          };
-          console.log("New Message Appended");
-          append(newMessage);
-        }
-      } catch (error) {
-        console.error("Error calling get_last_processed_document:", error);
+        JSON.parse(content);
+        return true;
+      } catch (e) {
+        return false;
       }
     };
-    fetchDocument();
-  });
-
-  // if (data && data.length > 1 && messages.length > 1) {
-  //   const data_content = data[data.length - 1].content;
-  //   const isJSONContent = (content: string) => {
-  //     try {
-  //       JSON.parse(content);
-  //       return true;
-  //     } catch (e) {
-  //       return false;
-  //     }
-  //   };
-  //   if (
-  //     isJSONContent(data_content) &&
-  //     !messages.some((message) => message.content === data_content)
-  //   ) {
-  //     const newMessageId = (messages.length + 1).toString();
-  //     const newMessage: Message = {
-  //       id: newMessageId,
-  //       content: data_content,
-  //       role: "user",
-  //     };
-  //     console.log("New Message Appended");
-  //     append(newMessage);
-  //   }
-  // }
+    if (
+      isJSONContent(data_content) &&
+      !messages.some((message) => message.content === data_content)
+    ) {
+      const newMessageId = (messages.length + 1).toString();
+      const newMessage: Message = {
+        id: newMessageId,
+        content: data_content,
+        role: "user",
+      };
+      console.log("New Message Appended");
+      append(newMessage);
+    }
+  }
   React.useEffect(() => {
     const messageContainer = document.getElementById("message-container");
     if (messageContainer) {

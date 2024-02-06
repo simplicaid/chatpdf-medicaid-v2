@@ -16,7 +16,14 @@ const ToggleViewer: React.FC<Props> = ({ chatId, pdfUrl }) => {
 
   return (
     <div className="max-h-screen p-4 h-screen flex-[5] p-0 m-0">
-      <Button onClick={toggleViewer}>Switch Document View</Button>
+      <div className="mb-4">
+        <Button
+          onClick={toggleViewer}
+          className="bg-gray-200 text-black rounded-full hover:bg-blue-200 transition-colors duration-300"
+        >
+          Switch Document View
+        </Button>
+      </div>
       {isPDFViewer ? <PDFViewer pdf_url={pdfUrl} /> : <DocViewer />}
     </div>
   );

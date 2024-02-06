@@ -37,17 +37,7 @@ export async function loadS3IntoPinecone(fileKey: string) {
   const documents = await Promise.all(pages.map(prepareDocument));
   console.log("pdf segmented successfully");
 
-  // 3. vectorise and embed individual documents
-  const vectors = await Promise.all(documents.flat().map(embedDocument));
-
-  // 4. upload to pinecone
-  const client = await getPineconeClient();
-  const pineconeIndex = await client.index("chatpdf-medicaid");
-  const namespace = pineconeIndex.namespace(convertToAscii(fileKey));
-
-  console.log("inserting vectors into pinecone");
-  await namespace.upsert(vectors);
-
+  // Return the first document for consistency with the original function's return type
   return documents[0];
 }
 

@@ -85,27 +85,10 @@ const DocUpload = ({ chatId }: Props) => {
 
         const result = await response.json();
         console.log("Document parsed successfully:", result);
-        toast.success("Document parsed successfully");
+        toast.success("Document Viewer Ready");
 
         // Post the JSON output as user to the chatbot
-        const json_id = await postMessage(result.data);
-
-        // TODO:
-        // switch (document_type) {
-        //   case 'self_passport':
-        //     documentStatusData['Proof of Identity'] = 'pending';
-        //     break;
-        //   case 'child_passport':
-        //     documentStatusData['Family Certificate'] = 'pending';
-        //     break;
-        //   case 'paycheck_1':
-        //   case 'paycheck_2':
-        //     documentStatusData['Proof of Income'] = 'pending';
-        //     break;
-        //   default:
-        //     // Handle other document types or errors
-        //     break;
-        // }
+        await postMessage(result.data);
       } catch (error) {
         console.error("Error parsing document:", error);
         toast.error("Error parsing document");
