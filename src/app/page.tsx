@@ -43,18 +43,15 @@ export default async function Home() {
               <>
                 <Link href={`/chat/${firstChat.id}`}>
                   <Button>
-                    Go to Chats <ArrowRight className="ml-2" />
+                    Fill out the Medicaid Form! <ArrowRight className="ml-2" />
                   </Button>
                 </Link>
-                <div className="ml-3">
-                  <SubscriptionButton isPro={isPro} />
-                </div>
               </>
             )}
           </div>
 
           <p className="max-w-xl mt-1 text-lg text-slate-600">
-            Complete the Medicaid procress in minutes instead of hours, with a
+            Complete the Medicaid process in minutes instead of hours, with a
             <br />
             verification system to ensure you are not making any mistakes.
           </p>

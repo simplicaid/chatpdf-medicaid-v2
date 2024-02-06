@@ -17,49 +17,60 @@ const MessageList = ({ messages, isLoading }: Props) => {
     );
   }
   if (!messages) return <></>;
+
+  // Function to check if a string looks like JSON (simple check for {})
+  const looksLikeJSON = (str: string) => {
+    return /{.*}/.test(str);
+  };
+
   return (
-    <div className="flex flex-col gap-2.5 px-4">
-      {messages.map((message) => {
-        const isUser = message.role === "user";
-        return (
-          <div
-            key={message.id}
-            className={cn({
-              "flex justify-end items-start gap-2.5": isUser,
-              "flex justify-start items-start gap-2.5": !isUser,
-            })}
-          >
-            {/* Message bubble */}
+    <div className="flex flex-col gap-2 px-4">
+      {messages
+        .filter((message) => !looksLikeJSON(message.content))
+        .map((message) => {
+          const isUser = message.role === "user";
+          return (
             <div
-              className={cn(
-                "flex flex-col max-w-[280px] leading-1.5 border-gray-200 shadow-md",
-                {
-                  "bg-blue-600 text-white rounded-xl p-2.5": isUser,
-                  "bg-gray-100 text-gray-900 rounded-xl p-3.5": !isUser, 
-                }
-              )}
+              key={message.id}
+              className={cn({
+                "flex justify-end items-start gap-1": isUser, // Reduced gap for user messages
+                "flex justify-start items-start gap-1": !isUser, // Reduced gap for assistant messages
+              })}
             >
-              {/* Sender label */}
-              <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                <span className={cn("text-sm font-semibold", {
-                  "text-white": isUser,
-                  "text-gray-900 dark:text-white": !isUser,
-                })}>
-                  {isUser ? "" : "Simplicaid:"}
-                </span>
+              {/* Message bubble */}
+              <div
+                className={cn(
+                  "flex flex-col max-w-md leading-1.5 border-gray-200 shadow-md break-words", // Added break-words to ensure text wrapping
+                  {
+                    "bg-blue-600 text-white rounded-xl py-2 px-4": isUser, // Reduced padding top and bottom
+                    "bg-gray-100 text-gray-900 rounded-xl py-2 px-4": !isUser, // Reduced padding top and bottom
+                  }
+                )}
+              >
+                {/* Sender label */}
+                <div className="flex items-center space-x-1 rtl:space-x-reverse">
+                  <span
+                    className={cn("text-sm font-semibold", {
+                      "text-white": isUser,
+                      "text-gray-900 dark:text-white": !isUser,
+                    })}
+                  >
+                    {isUser ? "You" : "Simplicaid"}
+                  </span>
+                </div>
+                {/* Message content */}
+                <p
+                  className={cn("text-sm font-normal", {
+                    "text-right": isUser,
+                    "text-left": !isUser, // Removed additional padding for non-user messages
+                  })}
+                >
+                  {message.content}
+                </p>
               </div>
-              {/* Message content */}
-              {/* <p className="text-sm font-normal py-2.5">{message.content}</p> */}
-              <p className={cn("text-sm font-normal", {
-                "text-center": isUser, // Align right for user messages
-                "text-left py-2.5": !isUser, // Align left for assistant messages
-              })}>
-                {message.content}
-              </p>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
     </div>
   );
 };
